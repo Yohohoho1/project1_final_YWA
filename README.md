@@ -1,5 +1,15 @@
-# project1_final_YWA
-Blockchain project 1
+# Blockchain project
+Submittion for Blockchain project 1
+
+- All the code related to the project is in the repertory "project_1_v2_boilerplate".
+
+## Running
+- Don't forget to install the necessary packages in "project_1_v2_boilerplate" with the command "npm install".
+- Use the command "node app.js" to run the code.
+
+
+
+
 # Postman verification for getting a block by its height 
 
 ##
