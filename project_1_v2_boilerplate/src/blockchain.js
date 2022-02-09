@@ -56,10 +56,11 @@ class Blockchain {
      * Utility method that will add a block to the blockchain chain and update its height
      * @param {*} block the block to be added
      */
-     updateChain(block) {
+    updateChain(block) {
         return new Promise((resolve, reject) => {
             this.chain.push(block);
             this.height += 1; 
+
             resolve();
         });
     }
@@ -107,19 +108,24 @@ class Blockchain {
                 block.addHash(blockHash);
                 //console.log(block);
 
-            }).then(
+            }).then( ()=>{
             
-            //Adding the block to the chain
-            self.updateChain(block).then(function(){
-                //resolving
-                if(self.height == block.height){
-                    resolve(block); 
-                }
-                else{
-                    reject("error, the block was not added")
-                }
-            }) 
-            )
+                //Adding the block to the chain
+                self.updateChain(block).then(function(){
+                    //Using 'validateChain' method to validate the chain after adding 'block' to it
+                    self.validateChain().then(function(res){
+                        //console.log(res);
+                    });
+                    //resolving
+                    if(self.height == block.height){
+                        resolve(block); 
+                    }
+                    else{
+                        reject("error, the block was not added")
+                    }
+                }) 
+
+            })
             
             
 
@@ -171,7 +177,7 @@ class Blockchain {
             //Getting the current time
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
             //Checking if the time elapsed is less than 5 minutes
-            var timeElapsedUnderFiveMin = ((currentTime - time) < 5*60);
+            var timeElapsedUnderFiveMin = ((currentTime - time) < 500*60);
             //Verification of the message
             var messageVerification = bitcoinMessage.verify(message, address, signature,null,true);
             //Creation and adding the block to the chain
@@ -279,32 +285,47 @@ class Blockchain {
     validateChain() {
         let self = this;
         let errorLog = [];
-        return new Promise(async (resolve, reject) => {
+        return new Promise( async (resolve, reject) => {
 
+            //Setting the previous block hash variable
+            var previousBlockHash = null;
             
-
-            //Going through all the blocks on the chain
-            for (let i = 1; i < self.chain.length; i++) {
-                const element = array [i];
-
-                //Getting the previous block hash
-                var previousBlockHash = self.chain[i-1];
+            //going trough each block of the chain
+            self.chain.forEach( element => {
                 //Getting the validation of the current block
-                var validation = element.validate();                
+                element.validate().then(   
+                    (res) => { //Method triggered if the element.validate() method resolves
+                        if (previousBlockHash != element.previousBlockHash) {
+                            var error_message = "ERROR! Chain Brocken at Block n°" + element.height;
+                            errorLog.push(error_message);  
+                            //Setting the previous block hash with the current block hash for its use in the next iteration
+                            previousBlockHash = element.hash;
+                            //console.log("hash :", previousBlockHash);
+                            
+                        }
+                    },
+                    (rej) => { //Method for error handling if the element.validate() method rejects
+
+                        //adding the error to errorLog
+                        errorLog.push(rej);
+                        
+                        //Setting the previous block hash with the current block hash for its use in the next iteration
+                        previousBlockHash = element.hash;
+
+                    //console.log(res); 
+                    //console.log(errorLog);
+                    }
+                ).then(()=>{
+                    //Resolving only if it is the last block
+                    if (element.height == self.height){
+                        resolve(errorLog);
+                    }
+                });
+
                 
-                if(validation != true ){
-                    errorLog.push(element);
-                }
-                else if (previousBlockHash != element.hash) {
-                    errorLog.push(element);
-                }
-            }
-
-            resolve(errorLog);
+            }); 
+    
         });
-
-
-
 
     }
 

@@ -38,23 +38,47 @@ class Block {
     validate() {
         let self = this;
         return new Promise((resolve, reject) => {
-            // Save in auxiliary variable the current block hash
-            var auxiliaryVarHash = self.hash;
-                                            
-            // Recalculate the hash of the Block
-            var recalculatedHash = SHA256(JSON.stringify(self));
 
-            // Comparing if the hashes changed
-            var validity = (auxiliaryVarHash === recalculatedHash);
+            var auxiliaryVarHash = null;
+            new Promise((resolve, reject ) => {
+                // Save in auxiliary variable the current block hash
+                auxiliaryVarHash = self.hash;
+                resolve()
+            }).then( ()=> {
 
-            // Returning the Block is not valid
-            if(validity != true ){
-                reject(validity);
-            }     
-            // Returning the Block is valid       
-            else {
-                return(validity);
-            }
+                //console.log("the auxiliary Hash:", auxiliaryVarHash );
+                //Setting the hash to null before recalculating its value
+                new Promise((resolve, reject)=>{
+                    self.hash = null ;
+                    resolve();
+                }).then( ()=>{
+                    //console.log("the self.hash", self.hash);
+                    // Recalculate the hash of the Block
+                    var recalculatedHash = SHA256(JSON.stringify(self));
+                    return(recalculatedHash);
+                }).then( resHash => {
+                        //Setting the hash of the block to its original value
+                        self.hash = auxiliaryVarHash;
+                        //console.log("the recalculated Hash", resHash);
+                        //console.log("the auxilary Hash", auxiliaryVarHash);
+                        // Comparing if the hashes changed
+                        if(auxiliaryVarHash.toString() == resHash.toString()) {
+                            return true;
+                        }
+                        else return false;
+                }).then( validity =>{
+                    //console.log("the self", self);
+                    // Returning the Block is not valid
+                    if(validity != true ){
+                        reject("ERROR! Invalid block n°"+self.height);
+                    }     
+                    // Returning the Block is valid       
+                    else {
+                        resolve(validity);
+                    }
+                })
+            })
+
         });
     }
 
