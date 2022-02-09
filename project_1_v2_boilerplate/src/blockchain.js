@@ -295,13 +295,15 @@ class Blockchain {
                 //Getting the validation of the current block
                 element.validate().then(   
                     (res) => { //Method triggered if the element.validate() method resolves
+
                         if (previousBlockHash != element.previousBlockHash) {
                             var error_message = "ERROR! Chain Brocken at Block n°" + element.height;
                             errorLog.push(error_message);  
                             //Setting the previous block hash with the current block hash for its use in the next iteration
                             previousBlockHash = element.hash;
-                            //console.log("hash :", previousBlockHash);
-                            
+                        } else{
+                            //Setting the previous block hash with the current block hash since it couldn't be done in the "if"
+                            previousBlockHash = element.hash;
                         }
                     },
                     (rej) => { //Method for error handling if the element.validate() method rejects
@@ -311,6 +313,7 @@ class Blockchain {
                         
                         //Setting the previous block hash with the current block hash for its use in the next iteration
                         previousBlockHash = element.hash;
+                        
 
                     //console.log(res); 
                     //console.log(errorLog);
