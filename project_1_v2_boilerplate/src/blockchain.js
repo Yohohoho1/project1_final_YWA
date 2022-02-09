@@ -177,7 +177,7 @@ class Blockchain {
             //Getting the current time
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
             //Checking if the time elapsed is less than 5 minutes
-            var timeElapsedUnderFiveMin = ((currentTime - time) < 500*60);
+            var timeElapsedUnderFiveMin = ((currentTime - time) < 5*60);
             //Verification of the message
             var messageVerification = bitcoinMessage.verify(message, address, signature,null,true);
             //Creation and adding the block to the chain
