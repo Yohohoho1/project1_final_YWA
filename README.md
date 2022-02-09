@@ -32,3 +32,9 @@ Submittion for Blockchain project 1
 
 ##
 ![GitHub GettingStarPostedByAddress](/postman_verifications/stars_address.png)
+
+
+# Postman verification for having a functional validation of the chain 
+
+##
+![GitHub ValidateChain](/postman_verifications/validate_chain.png)
