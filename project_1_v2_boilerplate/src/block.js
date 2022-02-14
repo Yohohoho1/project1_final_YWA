@@ -49,23 +49,19 @@ class Block {
                 //console.log("the auxiliary Hash:", auxiliaryVarHash );
                 //Setting the hash to null before recalculating its value
                 new Promise((resolve, reject)=>{
-                    self.hash = null ;
-                    resolve();
-                }).then( ()=>{
-                    //console.log("the self.hash", self.hash);
-                    // Recalculate the hash of the Block
-                    var recalculatedHash = SHA256(JSON.stringify(self));
-                    return(recalculatedHash);
+                    // Recalculating the hash of the Block
+                    var recalculatedHash = SHA256(JSON.stringify({...self, "hash" : null})).toString();
+                    resolve(recalculatedHash);
                 }).then( resHash => {
-                        //Setting the hash of the block to its original value
-                        self.hash = auxiliaryVarHash;
                         //console.log("the recalculated Hash", resHash);
                         //console.log("the auxilary Hash", auxiliaryVarHash);
                         // Comparing if the hashes changed
-                        if(auxiliaryVarHash.toString() == resHash.toString()) {
+                        if(auxiliaryVarHash == resHash) {
                             return true;
                         }
-                        else return false;
+                        else {
+                            return false;
+                        }
                 }).then( validity =>{
                     //console.log("the self", self);
                     // Returning the Block is not valid
@@ -76,8 +72,8 @@ class Block {
                     else {
                         resolve(validity);
                     }
-                })
-            })
+                });
+            });
 
         });
     }

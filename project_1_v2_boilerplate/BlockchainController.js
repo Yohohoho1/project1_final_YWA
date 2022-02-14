@@ -125,7 +125,7 @@ class BlockchainController {
         this.app.get("/validatechain", async (req, res) => {
             try {
                 let invalidBlocks = await this.blockchain.validateChain();
-                console.log("the invalid blocks from the controler :",invalidBlocks);
+
                 if(invalidBlocks){
                     return res.status(200).json(invalidBlocks);
                 } else {

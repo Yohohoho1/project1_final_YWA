@@ -102,7 +102,7 @@ class Blockchain {
             })
             .then(function(){
                 //Calculating and adding to block its hash
-                var blockHash = SHA256(JSON.stringify(block));
+                var blockHash = SHA256(JSON.stringify(block)).toString();
                 
                 //Setting block hash
                 block.addHash(blockHash);
@@ -113,17 +113,16 @@ class Blockchain {
                 //Adding the block to the chain
                 self.updateChain(block).then(function(){
                     //Using 'validateChain' method to validate the chain after adding 'block' to it
-                    self.validateChain().then(function(res){
-                        //console.log(res);
+                    self.validateChain().then(function(errorsLog){
+                        //rejecting and resolving
+                        if(errorsLog.length > 0 ){
+                            reject(errorsLog)
+                        }
+                        else{
+                            resolve(block)
+                        }
                     });
-                    //resolving
-                    if(self.height == block.height){
-                        resolve(block); 
-                    }
-                    else{
-                        reject("error, the block was not added")
-                    }
-                }) 
+                }); 
 
             })
             
@@ -205,16 +204,13 @@ class Blockchain {
      */
     getBlockByHash(hash) {
         let self = this;
-        //Function for filtering the chain with the right hash
-        function isRightHash(value) {
-            return value === hash;
-          }
+
         return new Promise((resolve, reject) => {
-            //Filtering the chain
-            var blockFound = self.chain.filter(isRightHash);
+            //Getting the right element
+            let block = self.chain.find(element => element.hash === hash )
             //The block with the right hash was found
-            if(blockFound.length != 0){
-                resolve(blockFound[0]);
+            if(block){
+                resolve(block);
             }
             //No block with the given hash was found
             else{
@@ -232,7 +228,8 @@ class Blockchain {
         let self = this;
         
         return new Promise((resolve, reject) => {
-            let block = self.chain.filter(p => p.height == height);
+            //Getting the desired block
+            let block = self.chain.find(p => p.height === height);
             
             if(block){  
                 resolve(block);
